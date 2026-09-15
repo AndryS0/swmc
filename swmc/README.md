@@ -1,4 +1,5 @@
 # swmc — Stormworks microprocessor XML parser, editor and MCP server
+<img width="1920" height="1040" alt="image" src="https://github.com/user-attachments/assets/999d35af-09e6-4b4f-9eb9-27093e5047d9" />
 
 Read, edit and serve the `.xml` files that Stormworks writes for microcontrollers.
 
