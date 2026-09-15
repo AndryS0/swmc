@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "stormworks": {
+      "type": "stdio",
+      "command": "C:/Users/andry/AppData/Local/Programs/Python/Python310/python.exe",
+      "args": ["-m", "swmc.server"],
+      "env": {
+        "PYTHONPATH": "E:/temp/stormworks/swmc",
+        "PYTHONUTF8": "1"
+      }
+    }
+  }
+}

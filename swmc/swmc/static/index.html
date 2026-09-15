@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stormworks microprocessor editor</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header id="bar">
+  <div class="brand">
+    <span class="dot" id="live" title="connection"></span>
+    <strong id="mcName">—</strong>
+    <span class="path" id="mcPath"></span>
+  </div>
+  <div class="actions">
+    <button id="btnUndo" title="Undo (Ctrl+Z)">Undo</button>
+    <button id="btnRedo" title="Redo (Ctrl+Shift+Z)">Redo</button>
+    <span class="sep"></span>
+    <label class="check"><input type="checkbox" id="chkSnap" checked> Snap</label>
+    <label class="check"><input type="checkbox" id="chkFlipY"> Flip Y</label>
+    <label class="check" title="Spread the layout out and enlarge the boxes so full component names fit. Does not change the saved coordinates."><input type="checkbox" id="chkRoomy"> Roomy</label>
+    <span class="sep"></span>
+    <button id="btnFit" title="Fit to view (F)">Fit</button>
+    <button id="btnLua" title="Open the Lua script editor">Lua</button>
+    <button id="btnValidate">Validate</button>
+    <span class="sep"></span>
+    <span id="saveState" class="savestate">saved</span>
+  </div>
+</header>
+
+<main id="view-canvas">
+  <aside id="palette">
+    <div class="panelhead">
+      <span>Components</span>
+      <input id="paletteSearch" type="search" placeholder="search or type id…" autocomplete="off">
+    </div>
+    <div id="paletteList" class="scroll"></div>
+    <div class="hint">Drag onto the canvas, or click to place at the centre.</div>
+  </aside>
+
+  <section id="stage">
+    <svg id="canvas" tabindex="0">
+      <defs>
+        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M40 0H0V40" fill="none" stroke="var(--grid)" stroke-width="1"/>
+        </pattern>
+        <pattern id="gridBig" width="200" height="200" patternUnits="userSpaceOnUse">
+          <path d="M200 0H0V200" fill="none" stroke="var(--grid-big)" stroke-width="1"/>
+        </pattern>
+      </defs>
+      <!-- Grid backdrop. The patterns themselves are panned/zoomed via their
+           patternTransform, so these rects just need to cover the viewport. -->
+      <rect x="0" y="0" width="100%" height="100%" fill="url(#grid)"></rect>
+      <rect x="0" y="0" width="100%" height="100%" fill="url(#gridBig)"></rect>
+      <g id="world">
+        <g id="layerWires"></g>
+        <g id="layerNodes"></g>
+        <g id="layerOverlay"></g>
+      </g>
+    </svg>
+    <div id="hud">
+      <span id="hudZoom">100%</span>
+      <span id="hudCursor">0.00, 0.00</span>
+      <span id="hudCount"></span>
+      <span id="hudLegend" class="legend"></span>
+    </div>
+    <div id="toast"></div>
+  </section>
+
+  <aside id="inspector">
+    <div class="panelhead"><span id="inspTitle">Nothing selected</span></div>
+    <div id="inspBody" class="scroll"></div>
+  </aside>
+</main>
+
+<div id="issues" class="hidden">
+  <div class="panelhead">
+    <span>Validation</span>
+    <button id="btnCloseIssues" class="linkish">close</button>
+  </div>
+  <div id="issuesBody" class="scroll"></div>
+</div>
+
+<section id="view-lua" hidden>
+  <header id="luaBar">
+    <button id="luaBack" title="Back to the canvas (Esc)">&larr; Canvas</button>
+    <select id="luaPicker" title="Lua Script components in this microprocessor"></select>
+    <span class="keyhint">Ctrl+Space complete &middot; Ctrl+F find &middot; Ctrl+/ comment &middot; Ctrl+S save</span>
+    <span id="luaStats" class="savestate"></span>
+  </header>
+  <div id="luaBody">
+    <div id="luaMain">
+      <div id="luaFind" hidden>
+        <input id="luaFindInput" type="search" placeholder="find&hellip;" autocomplete="off">
+        <button id="luaFindPrev" title="Previous (Shift+F3)">&uarr;</button>
+        <button id="luaFindNext" title="Next (F3)">&darr;</button>
+        <span id="luaFindCount"></span>
+        <button id="luaFindClose" class="linkish">close</button>
+      </div>
+      <div id="luaEditor">
+        <div id="luaScroll">
+          <div id="luaDoc">
+            <pre id="luaGutter" aria-hidden="true"></pre>
+            <div id="luaPane">
+              <pre id="luaHl" aria-hidden="true"></pre>
+              <textarea id="luaCode" spellcheck="false" autocomplete="off"
+                        autocapitalize="off" autocorrect="off" wrap="off"></textarea>
+            </div>
+          </div>
+        </div>
+        <div id="luaAc" hidden></div>
+      </div>
+      <div id="luaProblems">
+        <div class="panelhead"><span>Problems</span></div>
+        <div id="luaProblemList" class="scroll"></div>
+      </div>
+    </div>
+    <aside id="luaApi">
+      <div class="panelhead">
+        <span>Lua API</span>
+        <input id="luaApiSearch" type="search" placeholder="filter&hellip;" autocomplete="off">
+      </div>
+      <div id="luaApiList" class="scroll"></div>
+      <div class="hint">Click to insert at the caret. Reference compiled from the
+        Stormworks JP wiki (wikiwiki.jp/sbarjp).</div>
+    </aside>
+  </div>
+</section>
+
+<script src="/static/vendor/luaparse.js"></script>
+<script src="/static/luaapi.js"></script>
+<script src="/static/app.js"></script>
+<script src="/static/lua.js"></script>
+</body>
+</html>

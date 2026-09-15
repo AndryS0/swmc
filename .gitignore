@@ -1,0 +1,76 @@
+# --- Python -----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# packaging / environments
+build/
+dist/
+sdist/
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+ENV/
+pip-wheel-metadata/
+
+# tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# --- swmc runtime leftovers -------------------------------------------------
+# Microprocessor.save() writes "<file>.tmp" and then os.replace()s it into
+# place, so a .tmp only survives a crash mid-save. save(backup=True) leaves a
+# ".bak" beside the file it replaced.
+*.tmp
+*.bak
+
+# --- reverse engineering ----------------------------------------------------
+# IDA databases for stormworks64.exe: large, machine-specific, and rebuildable
+# from the binary. The findings that matter are checked in as
+# stormworks_microprocessor_node_types.json and swmc/swmc/nodetypes.py.
+*.i64
+*.idb
+*.id0
+*.id1
+*.id2
+*.nam
+*.til
+*.dmp
+
+# --- node -------------------------------------------------------------------
+# Only used for `node --check` and the test harnesses; nothing is installed.
+node_modules/
+npm-debug.log*
+
+# --- editors and OS ---------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Claude Code ------------------------------------------------------------
+# Per-user machine state. .mcp.json and .claude/skills/ are shared project
+# configuration and stay tracked.
+.claude/settings.local.json
+.claude/*.local.json
+
+# --- deliberately NOT ignored -----------------------------------------------
+# swmc/swmc/static/vendor/luaparse.js  -- vendored on purpose so the editor
+#   needs no install step and the parser version is pinned with the source.
+#   Do not add a blanket `vendor/` rule here.
+# swmc/swmc/nodetypes.py -- generated from stormworks64.exe, but regenerating it
+#   needs IDA and the binary, so it is checked in.

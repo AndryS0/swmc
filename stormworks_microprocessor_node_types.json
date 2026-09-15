@@ -1,0 +1,2162 @@
+{
+  "binary": "stormworks64.exe",
+  "imagebase": "0x140000000",
+  "component_table": {
+    "global": "0x140D1B088",
+    "initializer": "0x140367330",
+    "accessor": "0x14036FF70",
+    "entry_stride": 128,
+    "entry_count": 60,
+    "fields": {
+      "+0": "type id (matches XML  <c type=\"N\">)",
+      "+4": "category enum",
+      "+8": "deque<string> required meshes (filled by 0x14036FC90)",
+      "+32": "name (char* + len@+40)",
+      "+48": "description (char* + len@+56)",
+      "+64": "input node list (ptr@64, cap@72, head@76, count@80; elem 24B, dtype@+16, flag@+20)",
+      "+88": "output node list (ptr@88, cap@96, head@100, count@104; elem 24B, dtype@+16)"
+    }
+  },
+  "xml": {
+    "container_serializer": "0x14038B940  (id, pos, components, components_bridge, ...)",
+    "polymorphic_list_reader": "0x1409077B0  (reads <c type=\"N\">, calls factory(N))",
+    "components_factory": "0x14038BD80",
+    "components_bridge_factory": "0x14038CA00",
+    "mesh_by_type": "0x140370140",
+    "category_name": "0x14036FFF0"
+  },
+  "category_enum": {
+    "0": "arithmetic",
+    "1": "logical",
+    "2": "control",
+    "3": "composite",
+    "4": "property"
+  },
+  "node_data_type_enum": {
+    "0": "on/off (bool)",
+    "1": "number (f32)",
+    "5": "composite",
+    "6": "video",
+    "7": "audio",
+    "note": "values 2,3,4,8 exist in the shared 9-value logic-node data-type enum but no microprocessor node class uses them"
+  },
+  "components": [
+    {
+      "type": 0,
+      "name": "NOT",
+      "class": "c_microprocessor_component_not",
+      "category": "logical",
+      "category_id": 1,
+      "mesh": "mp_not",
+      "inputs": [
+        {
+          "name": "A",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "NOT A",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Outputs the logical NOT of its input signal.",
+      "ctor": "sub_140372630"
+    },
+    {
+      "type": 1,
+      "name": "AND",
+      "class": "c_microprocessor_component_and",
+      "category": "logical",
+      "category_id": 1,
+      "mesh": "mp_and",
+      "inputs": [
+        {
+          "name": "A",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "B",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "A AND B",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Outputs the logical AND of its two input signals.",
+      "ctor": "sub_1403728A0"
+    },
+    {
+      "type": 2,
+      "name": "OR",
+      "class": "c_microprocessor_component_or",
+      "category": "logical",
+      "category_id": 1,
+      "mesh": "mp_or",
+      "inputs": [
+        {
+          "name": "A",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "B",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "A OR B",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Outputs the logical OR of its two input signals.",
+      "ctor": "sub_140372B80"
+    },
+    {
+      "type": 3,
+      "name": "XOR",
+      "class": "c_microprocessor_component_xor",
+      "category": "logical",
+      "category_id": 1,
+      "mesh": "mp_xor",
+      "inputs": [
+        {
+          "name": "A",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "B",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "A XOR B",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Outputs the logical XOR of its two input signals.",
+      "ctor": "sub_140372D70"
+    },
+    {
+      "type": 4,
+      "name": "NAND",
+      "class": "c_microprocessor_component_nand",
+      "category": "logical",
+      "category_id": 1,
+      "mesh": "mp_nand",
+      "inputs": [
+        {
+          "name": "A",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "B",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "A NAND B",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Outputs the logical NAND of its two input signals.",
+      "ctor": "sub_140372F50"
+    },
+    {
+      "type": 5,
+      "name": "NOR",
+      "class": "c_microprocessor_component_nor",
+      "category": "logical",
+      "category_id": 1,
+      "mesh": "mp_nor",
+      "inputs": [
+        {
+          "name": "A",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "B",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "A NOR B",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Outputs the logical NOR of its two input signals.",
+      "ctor": "sub_140373140"
+    },
+    {
+      "type": 6,
+      "name": "Add",
+      "class": "c_microprocessor_component_add",
+      "category": "arithmetic",
+      "category_id": 0,
+      "mesh": "mp_add",
+      "inputs": [
+        {
+          "name": "A",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "B",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "A + B",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Adds the two input values together and outputs the result.",
+      "ctor": "sub_140373330"
+    },
+    {
+      "type": 7,
+      "name": "Subtract",
+      "class": "c_microprocessor_component_subtract",
+      "category": "arithmetic",
+      "category_id": 0,
+      "mesh": "mp_subtract",
+      "inputs": [
+        {
+          "name": "A",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "B",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "A - B",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Subtracts the second input from the first and outputs the result.",
+      "ctor": "sub_1403735E0"
+    },
+    {
+      "type": 8,
+      "name": "Multiply",
+      "class": "c_microprocessor_component_multiply",
+      "category": "arithmetic",
+      "category_id": 0,
+      "mesh": "mp_multiply",
+      "inputs": [
+        {
+          "name": "A",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "B",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "A x B",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Multiplies the two input values and outputs the result.",
+      "ctor": "sub_1403737C0"
+    },
+    {
+      "type": 9,
+      "name": "Divide",
+      "class": "c_microprocessor_component_divide",
+      "category": "arithmetic",
+      "category_id": 0,
+      "mesh": "mp_divide",
+      "inputs": [
+        {
+          "name": "A",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "B",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "A / B",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Divide By Zero",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Divides the first input by the second and outputs the result.",
+      "ctor": "sub_1403739A0"
+    },
+    {
+      "type": 10,
+      "name": "f(x, y, z)",
+      "class": "c_microprocessor_component_function",
+      "category": "arithmetic",
+      "category_id": 0,
+      "mesh": "mp_function",
+      "inputs": [
+        {
+          "name": "x",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "y",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "z",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "f(x, y, z)",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Evaluates a mathematical expression with up to 3 input variables and outputs the result.",
+      "ctor": "sub_140373D40"
+    },
+    {
+      "type": 11,
+      "name": "Clamp",
+      "class": "c_microprocessor_component_clamp",
+      "category": "arithmetic",
+      "category_id": 0,
+      "mesh": "mp_clamp",
+      "inputs": [
+        {
+          "name": "Input Number",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Clamped Input",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Clamps the input value between a set min and max and outputs the result.",
+      "ctor": "sub_1403746D0"
+    },
+    {
+      "type": 12,
+      "name": "Threshold",
+      "class": "c_microprocessor_component_threshold",
+      "category": "control",
+      "category_id": 2,
+      "mesh": "mp_threshold",
+      "inputs": [
+        {
+          "name": "Input Number",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Within Threshold",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Outputs an on/off signal indicating whether or not the input value is within a set threshold.",
+      "ctor": "sub_140374C30"
+    },
+    {
+      "type": 13,
+      "name": "Memory Register",
+      "class": "c_microprocessor_component_memory",
+      "category": "control",
+      "category_id": 2,
+      "mesh": "mp_memory",
+      "inputs": [
+        {
+          "name": "Set",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Reset",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Number to store",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Stored Number",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Remembers the input value when receiving a signal to the Set node. When the Reset node receives a signal, the stor",
+      "ctor": "sub_140375100"
+    },
+    {
+      "type": 14,
+      "name": "Abs",
+      "class": "c_microprocessor_component_abs",
+      "category": "arithmetic",
+      "category_id": 0,
+      "mesh": "mp_abs",
+      "inputs": [
+        {
+          "name": "Input Number",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Absolute Value",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Outputs the absolute value of the input value (negative numbers become positive).",
+      "ctor": "sub_140375710"
+    },
+    {
+      "type": 15,
+      "name": "Constant Number",
+      "class": "c_microprocessor_component_constant_number",
+      "category": "arithmetic",
+      "category_id": 0,
+      "mesh": "mp_constant_number",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "Constant Value",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Outputs a constant number that is set on the properties panel.",
+      "ctor": null
+    },
+    {
+      "type": 16,
+      "name": "Constant On Signal",
+      "class": "c_microprocessor_component_constant_bool",
+      "category": "logical",
+      "category_id": 1,
+      "mesh": "mp_constant_bool",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "On Signal",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Outputs a constant on signal.",
+      "ctor": null
+    },
+    {
+      "type": 17,
+      "name": "Greater Than",
+      "class": "c_microprocessor_component_greater_than",
+      "category": "control",
+      "category_id": 2,
+      "mesh": "mp_greater_than",
+      "inputs": [
+        {
+          "name": "A",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "B",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "A > B",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Outputs an on signal if the first input is greater than the second.",
+      "ctor": "sub_140375C10"
+    },
+    {
+      "type": 18,
+      "name": "Less Than",
+      "class": "c_microprocessor_component_less_than",
+      "category": "control",
+      "category_id": 2,
+      "mesh": "mp_less_than",
+      "inputs": [
+        {
+          "name": "A",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "B",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "A << B",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Outputs an on signal if the first value is less than the second.",
+      "ctor": "sub_140375E00"
+    },
+    {
+      "type": 19,
+      "name": "Property Slider",
+      "class": "c_microprocessor_component_property_slider",
+      "category": "property",
+      "category_id": 4,
+      "mesh": "mp_property_number_slider",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "Slider Value",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Adds a custom slider that will be seen on the microcontroller's property panel when placed on a vehicle.",
+      "ctor": "sub_140375FF0"
+    },
+    {
+      "type": 20,
+      "name": "Property Dropdown",
+      "class": "c_microprocessor_component_property_selector",
+      "category": "property",
+      "category_id": 4,
+      "mesh": "mp_property_number_selector",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "Selected Value",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Adds a custom dropdown list that will be seen on the microcontroller's property panel when placed on a vehicle.",
+      "ctor": "sub_140378780"
+    },
+    {
+      "type": 21,
+      "name": "Numerical Junction",
+      "class": "c_microprocessor_component_numerical_junction",
+      "category": "control",
+      "category_id": 2,
+      "mesh": "mp_numerical_junction",
+      "inputs": [
+        {
+          "name": "Value To Pass Through",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Switch Signal",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "On Path",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Off Path",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Outputs the input number to one of the outputs depending on whether or not the Switch Signal is on. The path that ",
+      "ctor": "sub_140379530"
+    },
+    {
+      "type": 22,
+      "name": "Numerical Switchbox",
+      "class": "c_microprocessor_component_numerical_switchbox",
+      "category": "control",
+      "category_id": 2,
+      "mesh": "mp_numerical_switchbox",
+      "inputs": [
+        {
+          "name": "First Value (On)",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Second Value (Off)",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Switch Signal",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Switched Value",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Outputs the first input value when receiving an on signal, and the second when receiving an off signal.",
+      "ctor": "sub_140379880"
+    },
+    {
+      "type": 23,
+      "name": "PID Controller",
+      "class": "c_microprocessor_component_pid_controller",
+      "category": "control",
+      "category_id": 2,
+      "mesh": "mp_pid_controller",
+      "inputs": [
+        {
+          "name": "Setpoint",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Process Variable",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Active",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Control Output",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "A basic PID controller. The proportional, integral and derivative gains can be set in the property panel.",
+      "ctor": "sub_140379C20"
+    },
+    {
+      "type": 24,
+      "name": "SR Latch",
+      "class": "c_microprocessor_component_sr_latch",
+      "category": "logical",
+      "category_id": 1,
+      "mesh": "mp_sr_latch",
+      "inputs": [
+        {
+          "name": "Set",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Reset",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Output",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "NOT Output",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "An SR latch that can be set and reset using two on/off inputs.",
+      "ctor": "sub_14037A810"
+    },
+    {
+      "type": 25,
+      "name": "JK Flip Flop",
+      "class": "c_microprocessor_component_jk_flip_flop",
+      "category": "logical",
+      "category_id": 1,
+      "mesh": "mp_jk_flipflop",
+      "inputs": [
+        {
+          "name": "Set",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Reset",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Output",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "NOT Output",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "An JK flip flop that can be set and reset using two on/off inputs.",
+      "ctor": "sub_14037AD20"
+    },
+    {
+      "type": 26,
+      "name": "Capacitor",
+      "class": "c_microprocessor_component_capacitor",
+      "category": "control",
+      "category_id": 2,
+      "mesh": "mp_capacitor",
+      "inputs": [
+        {
+          "name": "Charge",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Stored Charge",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Charges up when receiving an on signal, then discharges over a period of time.",
+      "ctor": "sub_14037AFF0"
+    },
+    {
+      "type": 27,
+      "name": "Blinker",
+      "class": "c_microprocessor_component_blinker",
+      "category": "control",
+      "category_id": 2,
+      "mesh": "mp_blinker",
+      "inputs": [
+        {
+          "name": "Control Signal",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Blinking Signal",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Outputs a value that blinks between on and off at a set rate.",
+      "ctor": "sub_14037B9D0"
+    },
+    {
+      "type": 28,
+      "name": "Push To Toggle",
+      "class": "c_microprocessor_component_push_to_toggle",
+      "category": "logical",
+      "category_id": 1,
+      "mesh": "mp_push_to_toggle",
+      "inputs": [
+        {
+          "name": "Toggle Signal",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Internal State",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "An on/off switch that is toggled every time a new on signal is sent to its input.",
+      "ctor": "sub_14037C270"
+    },
+    {
+      "type": 29,
+      "name": "Composite Read (on/off)",
+      "class": "c_microprocessor_component_composite_read_bool",
+      "category": "composite",
+      "category_id": 3,
+      "mesh": "mp_composite_read",
+      "inputs": [
+        {
+          "name": "Composite Signal",
+          "dt": 5,
+          "dt_name": "composite"
+        },
+        {
+          "name": "Start Channel",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Read Value",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Reads the on/off value from a selected channel of a composite input.",
+      "ctor": "sub_14037C580"
+    },
+    {
+      "type": 30,
+      "name": "Composite Write (on/off)",
+      "class": "c_microprocessor_component_composite_write_bool",
+      "category": "composite",
+      "category_id": 3,
+      "mesh": "mp_composite_write",
+      "inputs": [
+        {
+          "name": "Composite Signal",
+          "dt": 5,
+          "dt_name": "composite"
+        },
+        {
+          "name": "Set Value",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Modified Composite Signal",
+          "dt": 5,
+          "dt_name": "composite"
+        }
+      ],
+      "desc": "Writes an on/off value to a selected channel of the composite input.",
+      "ctor": "sub_14037CDC0"
+    },
+    {
+      "type": 31,
+      "name": "Composite Read (number)",
+      "class": "c_microprocessor_component_composite_read_f32",
+      "category": "composite",
+      "category_id": 3,
+      "mesh": "mp_composite_read",
+      "inputs": [
+        {
+          "name": "Composite Signal",
+          "dt": 5,
+          "dt_name": "composite"
+        },
+        {
+          "name": "Start Channel",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Read Value",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Reads the number value from a selected channel of a composite input.",
+      "ctor": "sub_14037D440"
+    },
+    {
+      "type": 32,
+      "name": "Composite Write (number)",
+      "class": "c_microprocessor_component_composite_write_f32",
+      "category": "composite",
+      "category_id": 3,
+      "mesh": "mp_composite_write",
+      "inputs": [
+        {
+          "name": "Composite Signal",
+          "dt": 5,
+          "dt_name": "composite"
+        },
+        {
+          "name": "Set Value",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Modified Composite Signal",
+          "dt": 5,
+          "dt_name": "composite"
+        }
+      ],
+      "desc": "Writes a number value to a selected channel of the composite input.",
+      "ctor": "sub_14037D830"
+    },
+    {
+      "type": 33,
+      "name": "Property Toggle",
+      "class": "c_microprocessor_component_property_toggle",
+      "category": "property",
+      "category_id": 4,
+      "mesh": "mp_property_toggle",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "Toggle Value",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Adds a custom on/off toggle that will be seen on the microcontroller's property panel when placed on a vehicle.",
+      "ctor": "sub_14037DB60"
+    },
+    {
+      "type": 34,
+      "name": "Property Number",
+      "class": "c_microprocessor_component_property_number",
+      "category": "property",
+      "category_id": 4,
+      "mesh": "mp_property_number",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "Set Number",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Adds a custom number input that will be seen on the microcontroller's property panel when placed on a vehicle.",
+      "ctor": "sub_14037E6D0"
+    },
+    {
+      "type": 35,
+      "name": "Delta",
+      "class": "c_microprocessor_component_delta",
+      "category": "arithmetic",
+      "category_id": 0,
+      "mesh": "mp_delta",
+      "inputs": [
+        {
+          "name": "Input Value",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Delta Of Input Value",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Outputs the difference between the input and the input from the previous tick.",
+      "ctor": "sub_14037ED30"
+    },
+    {
+      "type": 36,
+      "name": "f(x, y, z, w, a, b, c, d)",
+      "class": "c_microprocessor_component_function_8_inputs",
+      "category": "arithmetic",
+      "category_id": 0,
+      "mesh": "mp_function",
+      "inputs": [
+        {
+          "name": "x",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "y",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "z",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "w",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "a",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "b",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "c",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "d",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "f(x, y, z, w, a, b, c, d)",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Evaluates a mathematical expression with up to 8 input variables and outputs the result.",
+      "ctor": "sub_14037F070"
+    },
+    {
+      "type": 37,
+      "name": "Up/Down Counter",
+      "class": "c_microprocessor_component_up_down",
+      "category": "control",
+      "category_id": 2,
+      "mesh": "mp_up_down",
+      "inputs": [
+        {
+          "name": "Up",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Down",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Reset",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Value",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Has an internal value that will increase and decrease when receiving different signals.",
+      "ctor": "sub_14037FB00"
+    },
+    {
+      "type": 38,
+      "name": "Modulo (fmod)",
+      "class": "c_microprocessor_component_modulo",
+      "category": "arithmetic",
+      "category_id": 0,
+      "mesh": "mp_modulo",
+      "inputs": [
+        {
+          "name": "A",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "B",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "A % B",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Outputs the modulo of input A by input B.",
+      "ctor": "sub_140380A60"
+    },
+    {
+      "type": 39,
+      "name": "PID Controller (Advanced)",
+      "class": "c_microprocessor_component_advanced_pid",
+      "category": "control",
+      "category_id": 2,
+      "mesh": "mp_pid_controller",
+      "inputs": [
+        {
+          "name": "Setpoint",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Process Variable",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Proportional Gain",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Integral Gain",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Derivative Gain",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Active",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Control Output",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "A PID controller with variable proportional, integral and derivative gains.",
+      "ctor": "sub_140380C80"
+    },
+    {
+      "type": 40,
+      "name": "Composite Write (number)",
+      "class": "c_microprocessor_component_composite_write_f32_large",
+      "category": "composite",
+      "category_id": 3,
+      "mesh": "mp_composite_write",
+      "inputs": [
+        {
+          "name": "Composite Signal",
+          "dt": 5,
+          "dt_name": "composite"
+        },
+        {
+          "name": "Input 1",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 2",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 3",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 4",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 5",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 6",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 7",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 8",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 9",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 10",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 11",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 12",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 13",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 14",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 15",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 16",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 17",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 18",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 19",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 20",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 21",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 22",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 23",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 24",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 25",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 26",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 27",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 28",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 29",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 30",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 31",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Input 32",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Start Channel",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Modified Composite Signal",
+          "dt": 5,
+          "dt_name": "composite"
+        }
+      ],
+      "desc": "Writes up to 32 numbers to a composite link in a single logic tick. Only connected channels will be modified. The ",
+      "ctor": "sub_140381440"
+    },
+    {
+      "type": 41,
+      "name": "Composite Write (on/off)",
+      "class": "c_microprocessor_component_composite_write_bool_large",
+      "category": "composite",
+      "category_id": 3,
+      "mesh": "mp_composite_write",
+      "inputs": [
+        {
+          "name": "Composite Signal",
+          "dt": 5,
+          "dt_name": "composite"
+        },
+        {
+          "name": "Input 1",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 2",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 3",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 4",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 5",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 6",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 7",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 8",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 9",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 10",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 11",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 12",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 13",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 14",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 15",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 16",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 17",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 18",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 19",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 20",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 21",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 22",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 23",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 24",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 25",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 26",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 27",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 28",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 29",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 30",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 31",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Input 32",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Start Channel",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Modified Composite Signal",
+          "dt": 5,
+          "dt_name": "composite"
+        }
+      ],
+      "desc": "Writes up to 32 on/off signals to a composite link in a single logic tick. Only connected channels will be modifie",
+      "ctor": "sub_140382980"
+    },
+    {
+      "type": 42,
+      "name": "Equal",
+      "class": "c_microprocessor_component_equal",
+      "category": "arithmetic",
+      "category_id": 0,
+      "mesh": "mp_equal",
+      "inputs": [
+        {
+          "name": "A",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "B",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "A = B",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Compares whether or not two numbers are equal within a set accuracy.",
+      "ctor": "sub_140383060"
+    },
+    {
+      "type": 43,
+      "name": "Tooltip Number",
+      "class": "c_microprocessor_component_property_output_number",
+      "category": "property",
+      "category_id": 4,
+      "mesh": "mp_tooltip_number",
+      "inputs": [
+        {
+          "name": "Display Number",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Is Error",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [],
+      "desc": "Displays a number on this microcontroller's tooltip when it is looked at by the player on a spawned vehicle.",
+      "ctor": "sub_1403835E0"
+    },
+    {
+      "type": 44,
+      "name": "Tooltip On/Off",
+      "class": "c_microprocessor_component_property_output_bool",
+      "category": "property",
+      "category_id": 4,
+      "mesh": "mp_tooltip_bool",
+      "inputs": [
+        {
+          "name": "Display Signal",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [],
+      "desc": "Displays an on/off signal on this microcontroller's tooltip when it is looked at by the player on a spawned vehicle.",
+      "ctor": "sub_140383FC0"
+    },
+    {
+      "type": 45,
+      "name": "f(x)",
+      "class": "c_microprocessor_component_function_1_input",
+      "category": "arithmetic",
+      "category_id": 0,
+      "mesh": "mp_function",
+      "inputs": [
+        {
+          "name": "x",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "f(x)",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Evaluates a mathematical expression with 1 input variable and outputs the result.",
+      "ctor": "sub_140384D20"
+    },
+    {
+      "type": 46,
+      "name": "Boolean f(x,y,z,w)",
+      "class": "c_microprocessor_component_function_bool_4_inputs",
+      "category": "logical",
+      "category_id": 1,
+      "mesh": "mp_function",
+      "inputs": [
+        {
+          "name": "x",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "y",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "z",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "w",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "f(x,y,z,w)",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Evaluates a logical expression with up to 4 input variables and outputs the result.",
+      "ctor": "sub_140385310"
+    },
+    {
+      "type": 47,
+      "name": "Boolean f(x,y,z,w,a,b,c,d)",
+      "class": "c_microprocessor_component_function_bool_8_inputs",
+      "category": "logical",
+      "category_id": 1,
+      "mesh": "mp_function",
+      "inputs": [
+        {
+          "name": "x",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "y",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "z",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "w",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "a",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "b",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "c",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "d",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "f(x,y,z,w,a,b,c,d)",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Evaluates a logical expression with up to 8 input variables and outputs the result.",
+      "ctor": "sub_140385B40"
+    },
+    {
+      "type": 48,
+      "name": "Pulse (Toggle to Push)",
+      "class": "c_microprocessor_component_pulse",
+      "category": "logical",
+      "category_id": 1,
+      "mesh": "mp_pulse",
+      "inputs": [
+        {
+          "name": "Toggle Signal",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Pulse",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "A switch that outputs a single tick pulse. It can be configured to pulse when being switched from off to on (defau",
+      "ctor": "sub_140386420"
+    },
+    {
+      "type": 49,
+      "name": "Timer (TON)",
+      "class": "c_microprocessor_component_ton",
+      "category": "control",
+      "category_id": 2,
+      "mesh": "mp_timer_on",
+      "inputs": [
+        {
+          "name": "Timer Enable",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Duration",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Timing Complete",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Variable input timer. Outputs an on signal when the timer reaches its duration. The timer will reset when off.",
+      "ctor": "sub_140386D00"
+    },
+    {
+      "type": 50,
+      "name": "Timer (TOF)",
+      "class": "c_microprocessor_component_tof",
+      "category": "control",
+      "category_id": 2,
+      "mesh": "mp_timer_off",
+      "inputs": [
+        {
+          "name": "Timer Enable",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Duration",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Timing",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Variable input timer. Outputs an on signal when the timer is less than its duration. The timer will reset when off.",
+      "ctor": "sub_140387550"
+    },
+    {
+      "type": 51,
+      "name": "Timer (RTO)",
+      "class": "c_microprocessor_component_rto",
+      "category": "control",
+      "category_id": 2,
+      "mesh": "mp_timer_on",
+      "inputs": [
+        {
+          "name": "Timer Enable",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Duration",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Reset",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Timing Complete",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Variable input timer. Outputs an on signal when the timer reaches its duration. The timer will not reset until it is signalled.",
+      "ctor": "sub_140387990"
+    },
+    {
+      "type": 52,
+      "name": "Timer (RTF)",
+      "class": "c_microprocessor_component_rtf",
+      "category": "control",
+      "category_id": 2,
+      "mesh": "mp_timer_off",
+      "inputs": [
+        {
+          "name": "Timer Enable",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        },
+        {
+          "name": "Duration",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        },
+        {
+          "name": "Reset",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Timing",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "desc": "Variable input timer. Outputs an on signal when the timer is less than its duration. The timer will not reset unti",
+      "ctor": "sub_140388080"
+    },
+    {
+      "type": 53,
+      "name": "Composite Switchbox",
+      "class": "c_microprocessor_component_composite_switchbox",
+      "category": "composite",
+      "category_id": 3,
+      "mesh": "mp_numerical_switchbox",
+      "inputs": [
+        {
+          "name": "First Signal (On)",
+          "dt": 5,
+          "dt_name": "composite"
+        },
+        {
+          "name": "Second Signal (Off)",
+          "dt": 5,
+          "dt_name": "composite"
+        },
+        {
+          "name": "Switch Signal",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Switched Signal",
+          "dt": 5,
+          "dt_name": "composite"
+        }
+      ],
+      "desc": "Outputs the first input composite when receiving an on signal, and the second when receiving an off signal.",
+      "ctor": "sub_140388550"
+    },
+    {
+      "type": 54,
+      "name": "Number To Composite Binary",
+      "class": "c_microprocessor_component_number_to_composite_binary",
+      "category": "composite",
+      "category_id": 3,
+      "mesh": "mp_binary",
+      "inputs": [
+        {
+          "name": "Number To Convert",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Binary Signal",
+          "dt": 5,
+          "dt_name": "composite"
+        }
+      ],
+      "desc": "Converts a number (rounded) to binary and outputs the bits as composite on/off signals.",
+      "ctor": "sub_140388AD0"
+    },
+    {
+      "type": 55,
+      "name": "Composite Binary To Number",
+      "class": "c_microprocessor_component_composite_binary_to_number",
+      "category": "composite",
+      "category_id": 3,
+      "mesh": "mp_binary",
+      "inputs": [
+        {
+          "name": "Signal To Convert",
+          "dt": 5,
+          "dt_name": "composite"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Encoded Number",
+          "dt": 1,
+          "dt_name": "number (f32)"
+        }
+      ],
+      "desc": "Reads the on/off signals of a composite link and encodes them in the bits of an output number.",
+      "ctor": "sub_140388CD0"
+    },
+    {
+      "type": 56,
+      "name": "Lua Script",
+      "class": "c_microprocessor_component_lua_script",
+      "category": "composite",
+      "category_id": 3,
+      "mesh": "mp_lua_script",
+      "inputs": [
+        {
+          "name": "Data Input",
+          "dt": 5,
+          "dt_name": "composite"
+        },
+        {
+          "name": "Video Input",
+          "dt": 6,
+          "dt_name": "video"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Data Output",
+          "dt": 5,
+          "dt_name": "composite"
+        },
+        {
+          "name": "Video Output",
+          "dt": 6,
+          "dt_name": "video"
+        }
+      ],
+      "desc": "Runs a custom lua script for advanced logic and drawing to monitors.",
+      "ctor": "sub_140388F70"
+    },
+    {
+      "type": 57,
+      "name": "Video Switchbox",
+      "class": "c_microprocessor_component_video_switchbox",
+      "category": "composite",
+      "category_id": 3,
+      "mesh": "mp_video_switchbox",
+      "inputs": [
+        {
+          "name": "Video 1 (On)",
+          "dt": 6,
+          "dt_name": "video"
+        },
+        {
+          "name": "Video 2 (Off)",
+          "dt": 6,
+          "dt_name": "video"
+        },
+        {
+          "name": "Switch Signal",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Video Output",
+          "dt": 6,
+          "dt_name": "video"
+        }
+      ],
+      "desc": "Outputs the first input video when receiving an on signal, and the second when receiving an off signal.",
+      "ctor": "sub_140389A60"
+    },
+    {
+      "type": 58,
+      "name": "Property Text",
+      "class": "c_microprocessor_component_property_text",
+      "category": "property",
+      "category_id": 4,
+      "mesh": "mp_property_number",
+      "inputs": [],
+      "outputs": [],
+      "desc": "Adds a custom text input that will be seen on the microcontroller's property panel when placed on a vehicle, for s",
+      "ctor": null
+    },
+    {
+      "type": 59,
+      "name": "Audio Switchbox",
+      "class": "c_microprocessor_component_audio_switchbox",
+      "category": "composite",
+      "category_id": 3,
+      "mesh": "mp_audio_switchbox",
+      "inputs": [
+        {
+          "name": "Audio 1 (On)",
+          "dt": 7,
+          "dt_name": "audio"
+        },
+        {
+          "name": "Audio 2 (Off)",
+          "dt": 7,
+          "dt_name": "audio"
+        },
+        {
+          "name": "Switch Signal",
+          "dt": 0,
+          "dt_name": "on/off (bool)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Audio Output",
+          "dt": 7,
+          "dt_name": "audio"
+        }
+      ],
+      "desc": "Outputs the first input audio when receiving an on signal, and the second when receiving an off signal.",
+      "ctor": "sub_140389E10"
+    }
+  ],
+  "components_bridge": [
+    {
+      "type": 0,
+      "class": "c_microprocessor_component_bridge_bool_input",
+      "ctor": "sub_14038A810"
+    },
+    {
+      "type": 1,
+      "class": "c_microprocessor_component_bridge_bool_output",
+      "ctor": "sub_14038A970"
+    },
+    {
+      "type": 2,
+      "class": "c_microprocessor_component_bridge_f32_input",
+      "ctor": "sub_14038AAD0"
+    },
+    {
+      "type": 3,
+      "class": "c_microprocessor_component_bridge_f32_output",
+      "ctor": "sub_14038AC30"
+    },
+    {
+      "type": 4,
+      "class": "c_microprocessor_component_bridge_composite_input",
+      "ctor": "sub_14038AD90"
+    },
+    {
+      "type": 5,
+      "class": "c_microprocessor_component_bridge_composite_output",
+      "ctor": "sub_14038AFD0"
+    },
+    {
+      "type": 6,
+      "class": "c_microprocessor_component_bridge_video_input",
+      "ctor": "sub_14038B1D0"
+    },
+    {
+      "type": 7,
+      "class": "c_microprocessor_component_bridge_video_output",
+      "ctor": "sub_14038B3F0"
+    },
+    {
+      "type": 8,
+      "class": "c_microprocessor_component_bridge_audio_input",
+      "ctor": "sub_14038B550"
+    },
+    {
+      "type": 9,
+      "class": "c_microprocessor_component_bridge_audio_output",
+      "ctor": "sub_14038B7E0"
+    }
+  ]
+}
