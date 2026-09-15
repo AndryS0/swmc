@@ -8,6 +8,7 @@ Every component type, field name and data type in this package was recovered fro
 
 ```
 swmc/
+  errors.py      one exception base, SwmcError
   nodetypes.py   generated tables: 60 component types + 10 bridge pin types
   sxml.py        format-preserving XML reader/writer for this specific dialect
   model.py       Microprocessor / Component object model and editing operations
@@ -18,7 +19,9 @@ swmc/
                  luaapi.js (Lua API reference), style.css
                  vendor/luaparse.js -- the only third-party code in the project
   cli.py         command line front end
-tests/           96 tests, run against a real 124-component microprocessor
+examples/        six runnable scripts, each exercised by the test suite
+  py.typed       marks the inline annotations as authoritative
+tests/           120 tests, run against a real 124-component microprocessor
 ```
 
 Everything except `static/vendor/luaparse.js` is standard library only; that one
@@ -164,6 +167,24 @@ work on the same document at the same time: call the `gui_open` tool, or start
 the MCP server and open the URL it reports.
 
 
+## Install
+
+Optional — everything runs from the source tree as `python -m swmc.…` with this
+directory on `PYTHONPATH`. Installing just gets you the three entry points on
+PATH, which is mainly worth it for the MCP config:
+
+```bash
+pip install .        # or -e . to keep editing in place
+```
+
+| | |
+|---|---|
+| `swmc` | the CLI below |
+| `swmc-server` | the MCP server, no `PYTHONPATH` needed |
+| `swmc-gui` | the browser editor |
+
+Not on PyPI — see [Packaging](#packaging) for why.
+
 ## Quick start
 
 ```bash
@@ -174,10 +195,12 @@ python -m swmc.cli validate  "Complex Helicopter Gyro.xml"
 python -m swmc.cli watch     "Complex Helicopter Gyro.xml"
 ```
 
+See [`examples/`](examples/) for six runnable scripts; the short version:
+
 ```python
 from swmc import Microprocessor
 
-doc = Microprocessor.load("Complex Helicopter Gyro.xml")
+doc = Microprocessor.new("Gain stage")        # or .load("Gyro.xml")
 
 a = doc.add("const", x=50, y=50, properties={"n": 2})
 b = doc.add("func8", x=52, y=50, properties={"e": "x*pi"})
@@ -187,8 +210,16 @@ doc.set_property(a.id, "n", {"text": "1/3", "value": 0.333333})
 doc.remove(a.id, rewire=True)
 
 print(doc.validate())
-doc.save()                               # atomic replace, states kept in sync
+doc.save("Gain stage.xml")               # atomic replace, states kept in sync
+
+len(doc), doc[a.id], a.id in doc, [c for c in doc]   # it is a container
 ```
+
+Every error is a `SwmcError`; `UnknownTypeError` also subclasses `KeyError` so
+type lookups still behave like mapping misses. `component.label` is the
+instance's own label, `component.spec.name` is its type name. Everything is
+annotated — `Link`, `Issue`, `IOPin` and `Summary` are `TypedDict`s, so
+`doc.validate()[0]["level"]` checks.
 
 ## MCP server
 
@@ -198,21 +229,28 @@ python -m swmc.server --file "path/to/Gyro.xml"        # pre-open a document
 python -m swmc.server --no-autosave --poll-interval 1  # batch-friendly
 ```
 
-Register it for Claude Code (a `.mcp.json` doing this already sits in the parent
-directory):
+To register it with Claude Code, put this in `.mcp.json` in the project
+directory (or in `mcpServers` in `~/.claude.json` to have it everywhere).
+`command` must be an absolute path to the interpreter, and `PYTHONPATH` points
+at the directory holding the `swmc` package:
 
 ```json
 {
   "mcpServers": {
     "stormworks": {
       "type": "stdio",
-      "command": "python",
+      "command": "C:/Users/you/AppData/Local/Programs/Python/Python310/python.exe",
       "args": ["-m", "swmc.server"],
-      "env": { "PYTHONPATH": "E:/temp/stormworks/swmc" }
+      "env": {
+        "PYTHONPATH": "E:/temp/stormworks/swmc",
+        "PYTHONUTF8": "1"
+      }
     }
   }
 }
 ```
+
+The top-level [`README`](../README.md#as-an-mcp-server) has the full setup notes.
 
 ### Tools
 
@@ -321,7 +359,14 @@ it does not understand.
 
 ## Provenance
 
-Extracted from `stormworks64.exe` (imagebase `0x140000000`):
+Read out of **Stormworks: Build and Rescue v1.15.23** —
+`stormworks64.exe`, 13,944,320 bytes, sha256
+`f9206d85c82f4d02fd0ac391781d19c5c68394a9ffc48accca0e1f5966db8699`, imagebase
+`0x140000000`, embedding Lua 5.3. `swmc.nodetypes.SOURCE` carries the same
+details at runtime, and the top-level [`README`](../README.md#provenance)
+explains how the version was determined.
+
+Addresses within the binary:
 
 | What | Where |
 |---|---|
@@ -340,6 +385,37 @@ The type-id ordering is confirmed twice over: by the explicit `entry[+0] = N`
 stores in the initializer, and independently by the 60-case mesh-name switch.
 
 `../stormworks_microprocessor_node_types.json` holds the same data as plain JSON.
+
+## Packaging
+
+MIT licensed; see [`LICENSE`](LICENSE), which also carries luaparse's MIT
+notice and a note on the data read out of the game binary.
+
+`pyproject.toml` builds a working wheel — pure Python, no dependencies, with the
+editor's `static/` tree included as package data. A clean-venv install was
+checked: all three entry points run, `swmc-server` answers `tools/list` with 30
+tools without `PYTHONPATH`, and the web editor still finds its assets.
+
+`nodetypes.py` carries ~5 KB of text read out of the game — the 60 component
+descriptions and internal class names. The `LICENSE` states plainly that
+Stormworks and that data belong to its developers and that this is unaffiliated
+community tooling; the MIT grant covers this project's own code.
+
+The public API is fully annotated and the package ships a `py.typed` marker, so
+type checkers and editors see the hints straight from an install — verified by
+building a wheel, installing it into a clean venv and type-checking a consumer
+of the *installed* package, not just the source tree.
+
+```python
+doc.get(1)                    # Component        -- overloaded
+doc.get(1, required=False)    # Component | None
+doc.validate()[0]["level"]    # str              -- TypedDict
+doc.io_pins[0]["label"]       # str
+doc.connect("x", "in1", 1)    # error: expected int
+```
+
+Not on PyPI yet — `pip install ./swmc`, `-e ./swmc` or
+`pip install git+<your remote>` all work today and give the same entry points.
 
 ## Tests
 

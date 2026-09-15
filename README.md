@@ -10,12 +10,16 @@ Lua version are exact. See [Provenance](#provenance).
 
 ```
 .
-├── .mcp.json                       MCP server registration (project-scoped)
 ├── .claude/skills/                 Claude Code skill + node-type reference
 ├── stormworks_microprocessor_node_types.json
 │                                   the extracted tables as plain JSON
 └── swmc/                           the implementation -> swmc/README.md
+    ├── LICENSE                     MIT, plus luaparse's notice
+    └── examples/                   six runnable scripts
 ```
+
+Nothing is registered or installed by default. See
+[As an MCP server](#as-an-mcp-server) to wire it into Claude Code.
 
 ---
 
@@ -30,11 +34,11 @@ In short:
 
 | | |
 |---|---|
-| **Library** | `Microprocessor.load()` / `.add()` / `.connect()` / `.save()`, round-trip exact |
+| **Library** | `Microprocessor.load()` / `.add()` / `.connect()` / `.save()`, round-trip exact, fully typed |
 | **MCP server** | 30 tools over stdio, zero dependencies |
 | **Browser editor** | node-graph canvas + a Lua script view with real static analysis |
 | **CLI** | `python -m swmc.cli` — `info`, `list`, `show`, `types`, `describe`, `validate`, `watch` |
-| **Tests** | 96, run against a real 124-component microprocessor |
+| **Tests** | 120, run against a real 124-component microprocessor |
 
 CPython 3.8+ and nothing to install. The one piece of third-party code —
 [luaparse](https://github.com/fstirlitz/luaparse) (MIT), used to parse Lua — is
@@ -68,25 +72,77 @@ It is project-scoped. To use it from anywhere, move the directory to
 
 ### As an MCP server
 
-`.mcp.json` registers the server for this directory. Start Claude Code here and
-approve `stormworks`; then ask for what you want in plain language — the skill
-covers the rest.
+The server is not registered anywhere by default — add it once, in whichever
+scope you want.
+
+#### Installed (recommended)
+
+```bash
+pip install ./swmc          # or -e ./swmc to keep editing in place
+```
+
+That puts `swmc`, `swmc-server` and `swmc-gui` on PATH, which makes the config
+short and machine-independent:
 
 ```jsonc
 {
   "mcpServers": {
     "stormworks": {
       "type": "stdio",
-      "command": "…/python.exe",
-      "args": ["-m", "swmc.server"],
-      "env": { "PYTHONPATH": "…/swmc" }
+      "command": "swmc-server",
+      "env": { "PYTHONUTF8": "1" }
     }
   }
 }
 ```
 
-To make it global instead, copy that entry into `mcpServers` in
-`~/.claude.json`.
+If Claude Code cannot find `swmc-server`, give the absolute path to it —
+`pip show -f swmc` locates it, and inside a virtualenv it is
+`…/Scripts/swmc-server.exe` or `…/bin/swmc-server`.
+
+#### Straight from the source tree
+
+No install, but the config has to do the work:
+
+```jsonc
+{
+  "mcpServers": {
+    "stormworks": {
+      "type": "stdio",
+      "command": "C:/Users/you/AppData/Local/Programs/Python/Python310/python.exe",
+      "args": ["-m", "swmc.server"],
+      "env": {
+        "PYTHONPATH": "E:/temp/stormworks/swmc",
+        "PYTHONUTF8": "1"
+      }
+    }
+  }
+}
+```
+
+- **`command` must be an absolute path to a Python 3.8+ interpreter.** A bare
+  `python` works only if it resolves for the process that spawns the server,
+  which is not a given on Windows where `python` is often a shim.
+- **`PYTHONPATH` points at the outer `swmc/` directory** — the one *containing*
+  the `swmc` package, not the package itself. Get it one level too deep and you
+  get `No module named 'swmc'`.
+
+In both cases **`PYTHONUTF8=1`** keeps the server reading and writing UTF-8
+whatever the system code page. Without it a microprocessor whose name or Lua
+script holds non-ASCII text can fail to load on a non-UTF-8 Windows locale.
+
+#### Scope, and checking it worked
+
+Put that JSON in `.mcp.json` next to this README for this directory only, or add
+the `"stormworks"` entry to `mcpServers` in `~/.claude.json` to have it
+everywhere. Restart Claude Code and approve `stormworks` when prompted; `/mcp`
+lists the connected servers.
+
+If it does not appear, run the command by hand — it should sit waiting on stdin
+and print `[swmc] ready on stdio; 30 tools` to stderr.
+
+With it connected, ask for what you want in plain language — the skill in
+`.claude/skills/` covers the workflow.
 
 The 30 tools cover the document (`open`, `summary`, `save`, `reload`,
 `poll_changes`), the catalogue (`list_types`, `describe_type`), queries
@@ -111,16 +167,24 @@ agent, so edits from either side show up on both immediately.
 
 ### As a library
 
+```bash
+pip install ./swmc
+```
+
 ```python
 from swmc import Microprocessor
 
-doc = Microprocessor.load("Gyro.xml")
-gain = doc.add("slider", x=20, y=20, properties={"name": "Gain", "min": 0, "max": 4})
-clamp = doc.add("clamp", x=22, y=20, properties={"min": -1, "max": 1})
+doc = Microprocessor.new("Gain stage")     # or .load("Gyro.xml")
+gain = doc.add("slider", x=0, y=0, properties={"name": "Gain", "min": 0, "max": 4})
+clamp = doc.add("clamp", x=2, y=0, properties={"min": -1, "max": 1})
 doc.connect(clamp.id, "Input Number", gain.id)
 print(doc.validate())
-doc.save()
+doc.save("Gain stage.xml")
 ```
+
+`swmc/examples/` has six runnable scripts covering inspection, building from
+scratch, editing in place, rewriting a Lua component, watching for the game's
+saves, and driving the MCP server. All of them are run by the test suite.
 
 ---
 
@@ -140,7 +204,34 @@ changes.
 
 ## Provenance
 
-Extracted from `stormworks64.exe` (imagebase `0x140000000`):
+Everything here was read out of one specific build:
+
+| | |
+|---|---|
+| Game | Stormworks: Build and Rescue **v1.15.23** |
+| Binary | `stormworks64.exe`, 13,944,320 bytes |
+| SHA-256 | `f9206d85c82f4d02fd0ac391781d19c5c68394a9ffc48accca0e1f5966db8699` |
+| SHA-1 | `c47322a8934cdbf73e8b1b9c06d3aa43c650a2fb` |
+| MD5 | `db15f7abf04ffde1b5c596a41e823c63` |
+| Imagebase | `0x140000000` |
+| Embedded Lua | 5.3 |
+
+The exe carries no PE version resource and its PE timestamp is `0xFFFFFFFF` (a
+reproducible build), so the version comes from the binary itself: `WinMain`
+stores the literal `"Stormworks"` and `"v1.15.23"` into adjacent globals at
+startup, the latter at `0x140B0F498`.
+
+To check your own copy:
+
+```powershell
+(Get-FileHash "…\Stormworks\stormworks64.exe" -Algorithm SHA256).Hash
+```
+
+Type ids have been stable across updates in practice, and a new component type
+would be appended rather than renumbered — but if your hash differs and
+something looks wrong, that is the first thing to suspect.
+
+Addresses within the binary:
 
 | What | Where |
 |---|---|
@@ -167,7 +258,7 @@ cd swmc
 python -m unittest discover -s tests -t .
 ```
 
-96 tests: byte-exact XML round trip, schema completeness, every editing
+120 tests: byte-exact XML round trip, schema completeness, every editing
 operation, the MCP server over real stdio, the web backend over real HTTP
 including server-sent events, and the editor's JavaScript run in a Node VM.
 

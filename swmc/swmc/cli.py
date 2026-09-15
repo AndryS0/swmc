@@ -17,6 +17,7 @@ import time
 
 from .model import Microprocessor
 from .nodetypes import (
+    ALIASES,
     BRIDGE_TYPES,
     COMPONENT_TYPES,
     DATA_TYPE,
@@ -68,8 +69,11 @@ def cmd_types(args):
     for t in table.values():
         if args.category and t.category != args.category:
             continue
-        if args.query and args.query.lower() not in (t.name + t.cls).lower():
-            continue
+        if args.query:
+            aliases = " ".join(a for a, i in ALIASES.items() if i == t.type_id)
+            hay = ("%s %s %s %s" % (t.type_id, t.name, t.cls, aliases)).lower()
+            if args.query.lower() not in hay:
+                continue
         ins = ",".join(DATA_TYPE_SHORT.get(dt, "?") for _l, dt in t.inputs)
         outs = ",".join(DATA_TYPE_SHORT.get(dt, "?") for _l, dt in t.outputs)
         props = ",".join(f for f, k in t.design_fields if k != "link")
@@ -128,7 +132,7 @@ def cmd_watch(args):
     return 0
 
 
-def main(argv=None):
+def main(argv: "list[str] | None" = None) -> int:
     ap = argparse.ArgumentParser(prog="swmc", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)

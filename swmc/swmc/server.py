@@ -27,7 +27,7 @@ DEFAULT_PROTOCOL = "2024-11-05"
 MAX_UNDO = 50
 
 
-def log(*parts):
+def log(*parts: object) -> None:
     print("[swmc]", *parts, file=sys.stderr, flush=True)
 
 
@@ -1005,7 +1005,7 @@ class Server:
         log("stdin closed, exiting")
 
 
-def main(argv=None):
+def main(argv: "list[str] | None" = None) -> int:
     import argparse
     ap = argparse.ArgumentParser(
         prog="swmc-server",

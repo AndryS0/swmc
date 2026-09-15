@@ -2,6 +2,16 @@
 
 AUTO-GENERATED from stormworks64.exe by reverse engineering; do not edit by hand.
 
+Extracted from:
+
+    Stormworks: Build and Rescue v1.15.23
+    stormworks64.exe, 13,944,320 bytes
+    sha256 f9206d85c82f4d02fd0ac391781d19c5c68394a9ffc48accca0e1f5966db8699
+
+The game embeds Lua 5.3. If your build differs, re-check these tables before
+trusting them: type ids are stable in practice, but a new component type would
+be appended and the field schema can change.
+
 Sources inside the binary (imagebase 0x140000000):
   * component definition table   qword_140D1B088, built by sub_140367330
     60 entries x 128 bytes; entry = table + (type << 7)
@@ -13,6 +23,23 @@ Sources inside the binary (imagebase 0x140000000):
 """
 
 from __future__ import annotations
+
+# Hand-maintained additions to this generated file: this import, and the
+# SOURCE dict below recording which build the tables were read out of.
+from typing import Dict, List, Optional, Tuple, Union
+
+from .errors import UnknownTypeError
+
+#: The build these tables were read out of.
+SOURCE = {
+    "game": "Stormworks: Build and Rescue",
+    "game_version": "v1.15.23",
+    "binary": "stormworks64.exe",
+    "size_bytes": 13944320,
+    "sha256": "f9206d85c82f4d02fd0ac391781d19c5c68394a9ffc48accca0e1f5966db8699",
+    "imagebase": 0x140000000,
+    "lua_version": "5.3",
+}
 
 CATEGORY = {0: "arithmetic", 1: "logical", 2: "control", 3: "composite", 4: "property"}
 
@@ -43,8 +70,12 @@ class ComponentType:
     __slots__ = ("type_id", "name", "cls", "category", "mesh", "description",
                  "inputs", "outputs", "fields", "variadic_inputs")
 
-    def __init__(self, type_id, name, cls, category, mesh, description,
-                 inputs, outputs, fields, variadic_inputs=0):
+    def __init__(self, type_id: int, name: str, cls: str, category: str,
+                 mesh: Optional[str], description: str,
+                 inputs: "List[Tuple[str, int]]",
+                 outputs: "List[Tuple[str, int]]",
+                 fields: "List[Tuple[str, str]]",
+                 variadic_inputs: int = 0) -> None:
         self.type_id = type_id
         self.name = name
         self.cls = cls
@@ -57,7 +88,7 @@ class ComponentType:
         self.variadic_inputs = variadic_inputs  # >0 for the 32-channel composite writers
 
     @property
-    def link_fields(self):
+    def link_fields(self) -> "List[str]":
         """XML names of the input-link child elements, in serializer order."""
         out = [f for f, k in self.fields if k == "link"]
         if self.variadic_inputs:
@@ -68,10 +99,12 @@ class ComponentType:
         return out
 
     @property
-    def design_fields(self):
+    def design_fields(self) -> "List[Tuple[str, str]]":
+        """Fields that describe the saved design, excluding runtime state."""
         return [(f, k) for f, k in self.fields if k in DESIGN_KINDS]
 
-    def field_kind(self, name):
+    def field_kind(self, name: str) -> Optional[str]:
+        """How one field is stored -- link, attr_str, prop_num, ... -- or None."""
         for f, k in self.fields:
             if f == name:
                 return k
@@ -80,7 +113,7 @@ class ComponentType:
                 return "link"
         return None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<ComponentType %d %s>" % (self.type_id, self.name)
 
 
@@ -728,7 +761,7 @@ ALIASES = {
 }
 
 
-def find_type(key):
+def find_type(key: "Union[int, str, ComponentType]") -> ComponentType:
     """Resolve a component type from an id, an alias, or a display name."""
     if isinstance(key, ComponentType):
         return key
@@ -746,6 +779,7 @@ def find_type(key):
     if len(hits) == 1:
         return hits[0]
     if hits:
-        raise KeyError("ambiguous component type %r: %s"
-                       % (key, ", ".join("%d=%s" % (t.type_id, t.name) for t in hits)))
-    raise KeyError("unknown component type %r" % (key,))
+        raise UnknownTypeError("ambiguous component type %r: %s"
+                               % (key, ", ".join("%d=%s" % (t.type_id, t.name)
+                                                 for t in hits)))
+    raise UnknownTypeError("unknown component type %r" % (key,))

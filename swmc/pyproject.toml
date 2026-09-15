@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swmc"
+version = "1.0.0"
+description = "Read, edit and serve Stormworks microprocessor XML files"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+authors = [{ name = "Andrii Savenko" }]
+keywords = ["stormworks", "microprocessor", "microcontroller", "mcp", "lua"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Games/Entertainment",
+    "Topic :: Software Development :: Disassemblers",
+    "Topic :: Text Processing :: Markup :: XML",
+]
+# No runtime dependencies on purpose: the MCP server, the web editor and the
+# CLI all run on a bare CPython. The one piece of third-party code, luaparse
+# (MIT), is vendored under swmc/static/vendor/ and served to the browser.
+dependencies = [
+    # Only for Python 3.8, where TypedDict is not yet in typing.
+    'typing_extensions; python_version < "3.9"',
+]
+
+[project.scripts]
+swmc = "swmc.cli:main"
+swmc-server = "swmc.server:main"
+swmc-gui = "swmc.webui:main"
+
+[tool.setuptools]
+# Everything the browser editor serves has to ship with the package.
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["swmc*"]
+
+[tool.setuptools.package-data]
+swmc = [
+    "py.typed",
+    "static/*.html",
+    "static/*.js",
+    "static/*.css",
+    "static/vendor/*.js",
+    "static/vendor/LICENSE",
+]

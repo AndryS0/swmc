@@ -39,7 +39,7 @@ MIN_H = 0.5
 GRID = 0.25
 
 
-def box_height(n_in, n_out):
+def box_height(n_in: int, n_out: int) -> float:
     return max(MIN_H, ROW_H * max(n_in, n_out, 2))
 
 
@@ -355,7 +355,7 @@ class WebUI:
         self.thread = None
 
 
-def main(argv=None):
+def main(argv: "list[str] | None" = None) -> int:
     import argparse
     ap = argparse.ArgumentParser(
         prog="swmc-webui",

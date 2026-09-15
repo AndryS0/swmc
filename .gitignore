@@ -63,8 +63,13 @@ Thumbs.db
 desktop.ini
 
 # --- Claude Code ------------------------------------------------------------
-# Per-user machine state. .mcp.json and .claude/skills/ are shared project
-# configuration and stay tracked.
+# Per-user machine state. .claude/skills/ is shared project configuration and
+# stays tracked.
+#
+# .mcp.json is left to each checkout: it has to name an absolute interpreter
+# path, so one committed copy cannot be right for everyone. The README explains
+# how to write it. Drop the line below if your team standardises on one.
+.mcp.json
 .claude/settings.local.json
 .claude/*.local.json
 

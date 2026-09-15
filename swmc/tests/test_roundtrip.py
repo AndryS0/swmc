@@ -105,6 +105,52 @@ class TestSchema(unittest.TestCase):
         self.assertEqual(sorted(BRIDGE_TYPES), list(range(10)))
 
 
+class TestProvenance(unittest.TestCase):
+    """The tables and the JSON reference must name the same build."""
+
+    JSON = os.path.join(os.path.dirname(os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__)))),
+        "stormworks_microprocessor_node_types.json")
+
+    def source(self):
+        import json
+        with open(self.JSON, encoding="utf-8") as fh:
+            return json.load(fh)["source"]
+
+    def test_module_records_the_binary(self):
+        from swmc.nodetypes import SOURCE
+        self.assertEqual(SOURCE["game_version"], "v1.15.23")
+        self.assertEqual(len(SOURCE["sha256"]), 64)
+        self.assertEqual(SOURCE["sha256"], SOURCE["sha256"].lower())
+        self.assertEqual(SOURCE["imagebase"], 0x140000000)
+        self.assertEqual(SOURCE["lua_version"], "5.3")
+
+    def test_json_and_module_agree(self):
+        from swmc.nodetypes import SOURCE
+        js = self.source()
+        for key in ("game_version", "binary", "size_bytes", "sha256", "lua_version"):
+            self.assertEqual(js[key], SOURCE[key], "%r differs between the JSON "
+                             "reference and nodetypes.py" % key)
+        self.assertEqual(js["imagebase"], hex(SOURCE["imagebase"]))
+
+    def test_readmes_quote_the_same_hash(self):
+        from swmc.nodetypes import SOURCE
+        root = os.path.dirname(self.JSON)
+        for path in (os.path.join(root, "README.md"),
+                     os.path.join(root, "swmc", "README.md")):
+            with open(path, encoding="utf-8") as fh:
+                text = fh.read()
+            self.assertIn(SOURCE["sha256"], text, "%s quotes a different hash" % path)
+            self.assertIn(SOURCE["game_version"], text)
+
+    def test_lua_editor_targets_the_embedded_lua(self):
+        from swmc.nodetypes import SOURCE
+        lua_js = os.path.join(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__))), "swmc", "static", "lua.js")
+        with open(lua_js, encoding="utf-8") as fh:
+            self.assertIn("luaVersion: '%s'" % SOURCE["lua_version"], fh.read())
+
+
 class TestEditing(unittest.TestCase):
     def test_add_component(self):
         doc = load()
@@ -288,3 +334,214 @@ class TestSave(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class TestWatcher(unittest.TestCase):
+    """A manual poller and a background thread must not compete for events."""
+
+    def setUp(self):
+        import tempfile, shutil
+        self.tmp = tempfile.mkdtemp(prefix="swmc-watch-")
+        self.path = os.path.join(self.tmp, "w.xml")
+        shutil.copyfile(SAMPLE, self.path)
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def touch(self):
+        doc = Microprocessor.load(self.path)
+        doc.add("abs", 90, 90)
+        doc.save(self.path)
+
+    def test_manual_watcher_starts_no_thread(self):
+        from swmc.watch import FileWatcher
+        w = FileWatcher(interval=0.2)
+        w.watch(self.path)
+        try:
+            self.assertIsNone(w._thread, "a callback-less watcher must not poll "
+                                         "in the background and steal events")
+        finally:
+            w.stop()
+
+    def test_manual_polling_sees_every_change(self):
+        from swmc.watch import FileWatcher
+        w = FileWatcher(interval=0.2)
+        w.watch(self.path)
+        try:
+            for _ in range(5):
+                self.assertEqual(w.poll_once(), [])
+                self.touch()
+                events = w.poll_once()
+                self.assertEqual(len(events), 1, "a change was swallowed")
+                self.assertEqual(events[0]["kind"], "modified")
+        finally:
+            w.stop()
+
+    def test_callback_watcher_runs_in_the_background(self):
+        import time
+        from swmc.watch import FileWatcher
+        seen = []
+        w = FileWatcher(interval=0.2, on_change=lambda evs: seen.extend(evs))
+        w.watch(self.path)
+        try:
+            self.assertIsNotNone(w._thread)
+            self.touch()
+            deadline = time.time() + 8
+            while time.time() < deadline and not seen:
+                time.sleep(0.1)
+            self.assertEqual(len(seen), 1)
+        finally:
+            w.stop()
+
+    def test_self_writes_are_not_reported_back(self):
+        from swmc.watch import FileWatcher
+        w = FileWatcher(interval=0.2)
+        w.watch(self.path)
+        try:
+            self.touch()
+            w.mark_self_write(self.path)
+            self.assertEqual(w.poll_once(), [])
+        finally:
+            w.stop()
+
+
+class TestPublicApi(unittest.TestCase):
+    """Guard rails for the surface other people would code against."""
+
+    def test_every_public_member_is_documented(self):
+        import inspect
+        import swmc
+        missing = []
+        for name in swmc.__all__:
+            obj = getattr(swmc, name)
+            if inspect.isclass(obj):
+                if not obj.__doc__:
+                    missing.append(name)
+                for n, v in vars(obj).items():
+                    if n.startswith("_"):
+                        continue
+                    fn = v.fget if isinstance(v, property) else v
+                    if callable(fn) and not getattr(fn, "__doc__", None):
+                        missing.append("%s.%s" % (name, n))
+            elif callable(obj) and not obj.__doc__:
+                missing.append(name)
+        self.assertEqual(missing, [], "undocumented public API: %r" % (missing,))
+
+    def test_one_exception_base_covers_everything(self):
+        from swmc import SwmcError, EditError, UnknownTypeError, find_type
+        doc = load()
+        for bad in (lambda: find_type("definitely-not-a-type"),
+                    lambda: doc.get(10 ** 9),
+                    lambda: doc.add("definitely-not-a-type"),
+                    lambda: Microprocessor.new(width=99)):
+            with self.assertRaises(SwmcError):
+                bad()
+        # and the type lookup still behaves like a mapping miss
+        with self.assertRaises(KeyError):
+            find_type("definitely-not-a-type")
+        self.assertTrue(issubclass(UnknownTypeError, EditError))
+
+    def test_container_protocol(self):
+        doc = load()
+        self.assertEqual(len(doc), len(doc.all_components()))
+        first = doc.components[0]
+        self.assertIn(first.id, doc)
+        self.assertNotIn(10 ** 9, doc)
+        self.assertEqual(doc[first.id].id, first.id)
+        self.assertEqual(len([c for c in doc]), len(doc))
+
+    def test_label_is_distinct_from_the_type_name(self):
+        doc = load()
+        slider = doc.find(type="slider")[0]
+        self.assertTrue(slider.label)
+        self.assertEqual(slider.spec.name, "Property Slider")
+        self.assertNotEqual(slider.label, slider.spec.name)
+        slider.label = "Renamed"
+        self.assertEqual(slider.label, "Renamed")
+        self.assertEqual(doc[slider.id].properties()["name"], "Renamed")
+
+    def test_new_document_is_valid_and_round_trips(self):
+        doc = Microprocessor.new("Fresh", "desc", width=3, length=2)
+        self.assertEqual(doc.name, "Fresh")
+        self.assertEqual(doc.size, (3, 2))
+        self.assertEqual(len(doc), 0)
+        self.assertEqual(doc.validate(), [])
+        c = doc.add("add", 1, 1)
+        again = Microprocessor.loads(doc.to_string())
+        self.assertEqual(len(again), 1)
+        self.assertEqual(again[c.id].spec.name, "Add")
+        self.assertEqual(again.validate(), [])
+
+    def test_new_rejects_an_impossible_size(self):
+        from swmc import EditError
+        for bad in ((0, 1), (7, 1), (1, 0), (1, 7)):
+            with self.assertRaises(EditError):
+                Microprocessor.new(width=bad[0], length=bad[1])
+
+    def test_new_escapes_its_header_text(self):
+        doc = Microprocessor.new(name='Quote " & <angle>', description="a & b")
+        again = Microprocessor.loads(doc.to_string())
+        self.assertEqual(again.name, 'Quote " & <angle>')
+        self.assertEqual(again.description, "a & b")
+
+
+class TestTyping(unittest.TestCase):
+    """The package advertises inline types; keep that claim true."""
+
+    ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    def test_py_typed_marker_exists(self):
+        marker = os.path.join(self.ROOT, "swmc", "py.typed")
+        self.assertTrue(os.path.isfile(marker),
+                        "py.typed is what makes the hints visible to consumers")
+
+    def test_py_typed_ships_in_the_wheel(self):
+        with open(os.path.join(self.ROOT, "pyproject.toml"), encoding="utf-8") as fh:
+            pyproject = fh.read()
+        self.assertIn('"py.typed"', pyproject,
+                      "py.typed must be listed as package data or it is left out "
+                      "of the built distribution")
+
+    def test_public_api_is_annotated(self):
+        import inspect
+        import swmc
+        unannotated = []
+        for name in swmc.__all__:
+            obj = getattr(swmc, name)
+            targets = []
+            if inspect.isclass(obj):
+                for n, v in vars(obj).items():
+                    if n.startswith("__"):
+                        continue
+                    fn = v.fget if isinstance(v, property) else v
+                    if inspect.isfunction(fn):
+                        targets.append(("%s.%s" % (name, n), fn))
+            elif inspect.isfunction(obj):
+                targets.append((name, obj))
+            for label, fn in targets:
+                sig = inspect.signature(fn)
+                if sig.return_annotation is inspect.Signature.empty:
+                    unannotated.append("%s -> ?" % label)
+                for pname, p in sig.parameters.items():
+                    if pname in ("self", "cls") or p.kind in (
+                            p.VAR_POSITIONAL, p.VAR_KEYWORD):
+                        continue
+                    if p.annotation is inspect.Parameter.empty:
+                        unannotated.append("%s(%s)" % (label, pname))
+        self.assertEqual(unannotated, [],
+                         "unannotated public API: %r" % (unannotated[:12],))
+
+    def test_mypy_is_clean(self):
+        """Run mypy if it is available; skipped otherwise."""
+        import shutil
+        import subprocess
+        mypy = shutil.which("mypy")
+        if not mypy:
+            self.skipTest("mypy not installed")
+        p = subprocess.run(
+            [mypy, "--ignore-missing-imports",
+             *[os.path.join(self.ROOT, "swmc", f) for f in
+               ("errors.py", "sxml.py", "watch.py", "nodetypes.py", "model.py")]],
+            capture_output=True, text=True, cwd=self.ROOT)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)

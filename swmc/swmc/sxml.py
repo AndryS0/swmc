@@ -15,8 +15,10 @@ fighting a general-purpose parser.
 from __future__ import annotations
 
 import re
+from typing import Iterator, Optional, Tuple, overload
 
-__all__ = ["Element", "parse", "parse_file", "tostring", "ParseError"]
+__all__ = ["Element", "parse", "parse_file", "tostring", "escape_attr",
+           "ParseError"]
 
 _DECL_RE = re.compile(r"<\?xml[^>]*\?>\s*", re.S)
 _TAG_OPEN_RE = re.compile(r"<(/?)([A-Za-z_][\w.\-]*)")
@@ -32,7 +34,7 @@ class ParseError(ValueError):
     """Raised when the document is not the shape we expect."""
 
 
-def _unescape(text):
+def _unescape(text: str) -> str:
     if "&" not in text:
         return text
 
@@ -49,7 +51,7 @@ def _unescape(text):
     return _ENTITY_RE.sub(sub, text)
 
 
-def _escape_attr(text):
+def escape_attr(text: str) -> str:
     # Newlines and tabs stay literal: that is what the game writes and what
     # keeps Lua scripts intact.
     return (
@@ -65,63 +67,70 @@ class Element:
 
     __slots__ = ("tag", "attrib", "children")
 
-    def __init__(self, tag, attrib=None, children=None):
+    def __init__(self, tag: str, attrib: "dict[str, str] | None" = None,
+                 children: "list[Element] | None" = None) -> None:
         self.tag = tag
         self.attrib = dict(attrib) if attrib else {}
         self.children = list(children) if children else []
 
     # -- container protocol -------------------------------------------------
-    def __iter__(self):
+    def __iter__(self) -> "Iterator[Element]":
         return iter(self.children)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.children)
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> "Element":
         return self.children[i]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<Element %s %r (%d children)>" % (self.tag, self.attrib, len(self.children))
 
     # -- lookups ------------------------------------------------------------
-    def find(self, tag):
+    def find(self, tag: str) -> "Element | None":
         for c in self.children:
             if c.tag == tag:
                 return c
         return None
 
-    def findall(self, tag):
+    def findall(self, tag: str) -> "list[Element]":
         return [c for c in self.children if c.tag == tag]
 
-    def get(self, key, default=None):
+    @overload
+    def get(self, key: str) -> Optional[str]: ...
+
+    @overload
+    def get(self, key: str, default: str) -> str: ...
+
+    def get(self, key: str, default: Optional[str] = None) -> Optional[str]:
         return self.attrib.get(key, default)
 
-    def set(self, key, value):
+    def set(self, key: str, value: str) -> None:
         self.attrib[key] = value
 
-    def pop(self, key, default=None):
+    def pop(self, key: str, default: Optional[str] = None) -> Optional[str]:
         return self.attrib.pop(key, default)
 
-    def iter(self, tag=None):
+    def iter(self, tag: Optional[str] = None) -> "Iterator[Element]":
         if tag is None or self.tag == tag:
             yield self
         for c in self.children:
             yield from c.iter(tag)
 
     # -- mutation -----------------------------------------------------------
-    def append(self, child):
+    def append(self, child: "Element") -> None:
         self.children.append(child)
 
-    def insert(self, index, child):
+    def insert(self, index: int, child: "Element") -> None:
         self.children.insert(index, child)
 
-    def remove(self, child):
+    def remove(self, child: "Element") -> None:
         self.children.remove(child)
 
-    def clear_children(self):
+    def clear_children(self) -> None:
         self.children = []
 
-    def ensure(self, tag):
+    def ensure(self, tag: str) -> "Element":
         """Return the first child with ``tag``, creating it if absent."""
         c = self.find(tag)
         if c is None:
@@ -129,11 +138,11 @@ class Element:
             self.children.append(c)
         return c
 
-    def copy(self):
+    def copy(self) -> "Element":
         return Element(self.tag, dict(self.attrib), [c.copy() for c in self.children])
 
 
-def parse(text):
+def parse(text: str) -> "Tuple[Element, str, str]":
     """Parse a document string and return ``(root, declaration, trailer)``."""
     decl = ""
     m = _DECL_RE.match(text)
@@ -143,8 +152,8 @@ def parse(text):
     else:
         pos = 0
 
-    stack = []
-    root = None
+    stack: "list[Element]" = []
+    root: "Element | None" = None
     n = len(text)
     while pos < n:
         lt = text.find("<", pos)
@@ -209,13 +218,14 @@ def parse(text):
     return root, decl, ""
 
 
-def parse_file(path):
+def parse_file(path: str) -> "Tuple[Element, str, str]":
     with open(path, "r", encoding="utf-8", newline="") as fh:
         return parse(fh.read())
 
 
-def tostring(root, decl='<?xml version="1.0" encoding="UTF-8"?>\n', indent="\t",
-             trailing_newlines=2):
+def tostring(root: "Element",
+             decl: str = '<?xml version="1.0" encoding="UTF-8"?>\n',
+             indent: str = "\t", trailing_newlines: int = 2) -> str:
     """Serialise back out in the game's own style.
 
     Self-closing tags are written ``<tag a="1"/>`` with no space before the
@@ -226,7 +236,7 @@ def tostring(root, decl='<?xml version="1.0" encoding="UTF-8"?>\n', indent="\t",
 
     def emit(el, depth):
         pad = indent * depth
-        attrs = "".join(' %s="%s"' % (k, _escape_attr(v)) for k, v in el.attrib.items())
+        attrs = "".join(' %s="%s"' % (k, escape_attr(v)) for k, v in el.attrib.items())
         if el.children:
             out.append("%s<%s%s>\n" % (pad, el.tag, attrs))
             for c in el.children:

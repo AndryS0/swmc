@@ -1,6 +1,21 @@
 {
-  "binary": "stormworks64.exe",
-  "imagebase": "0x140000000",
+  "source": {
+    "game": "Stormworks: Build and Rescue",
+    "game_version": "v1.15.23",
+    "binary": "stormworks64.exe",
+    "size_bytes": 13944320,
+    "sha256": "f9206d85c82f4d02fd0ac391781d19c5c68394a9ffc48accca0e1f5966db8699",
+    "sha1": "c47322a8934cdbf73e8b1b9c06d3aa43c650a2fb",
+    "md5": "db15f7abf04ffde1b5c596a41e823c63",
+    "imagebase": "0x140000000",
+    "lua_version": "5.3",
+    "notes": {
+      "version_string": "the literal \"v1.15.23\" at 0x140B0F498, stored next to \"Stormworks\" by WinMain at startup",
+      "lua_version_string": "_VERSION at 0x140ADE5D8, beside the Lua error messages",
+      "pe_version_resource": "absent",
+      "pe_timestamp": "0xFFFFFFFF (reproducible build); carries no compile date"
+    }
+  },
   "component_table": {
     "global": "0x140D1B088",
     "initializer": "0x140367330",
